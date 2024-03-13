@@ -1,0 +1,1 @@
+ALTER TABLE checkpoints ADD CONSTRAINT fk_tour FOREIGN KEY (tour_id) REFERENCES tours (id);
