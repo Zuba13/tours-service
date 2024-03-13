@@ -1,0 +1,1 @@
+migrate -path repo/migration/ -database "postgresql://postgres:super@localhost:5432/tours?sslmode=disable" -verbose up 
