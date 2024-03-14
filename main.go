@@ -23,8 +23,10 @@ func initDB() *gorm.DB {
 		return nil
 	}
 
+	db.AutoMigrate(&model.Equipment{})
 	db.AutoMigrate(&model.Tour{})
 	db.AutoMigrate(&model.Checkpoint{})
+	db.AutoMigrate(&model.TourEquipment{})
 	fmt.Println("Successfully connected!")
 
 	return db
@@ -38,6 +40,7 @@ func startServer(tourHandler *handler.TourHandler,
 	router.HandleFunc("/create-tour", tourHandler.Create).Methods("POST")
 	router.HandleFunc("/get-tours/{authorId}", tourHandler.GetAuthorTours).Methods("GET")
 	router.HandleFunc("/add-checkpoint/{tourId}", checkpointHandler.CreateCheckpoint).Methods("POST")
+	router.HandleFunc("/add-equipment/{tourId}", tourHandler.AddEquipment).Methods("POST")
 
 	println("Server starting")
 	log.Fatal(http.ListenAndServe(":8080", router))

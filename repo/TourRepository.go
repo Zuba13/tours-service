@@ -23,3 +23,27 @@ func (repo *TourRepository) GetAuthorTours(authorId int32) []model.Tour {
 	repo.DatabaseConnection.Where("author_id = ?", authorId).Find(&tours)
 	return tours
 }
+
+func (repo *TourRepository) UpdateTour(tour *model.Tour) error {
+	dbResult := repo.DatabaseConnection.Save(tour)
+	if dbResult.Error != nil {
+		panic(dbResult.Error)
+	}
+	println("Rows affected: ", dbResult.RowsAffected)
+	return nil
+}
+
+func (repo *TourRepository) AddEquipment(tourId int32, newEquipment []model.Equipment) error {
+
+	var tour model.Tour
+	if err := repo.DatabaseConnection.Where("id = ?", tourId).First(&tour).Error; err != nil {
+		return err
+	}
+	tour.Equipment = append(tour.Equipment, newEquipment...)
+
+	if err := repo.DatabaseConnection.Save(&tour).Error; err != nil {
+		return err
+	}
+
+	return nil
+}

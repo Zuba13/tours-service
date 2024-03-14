@@ -17,11 +17,12 @@ const (
 )
 
 type Tour struct {
-	Id          int32     `json:"id"`
-	AuthorId    int32     `json:"author_id"`
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
-	Price       float64   `json:"price"`
-	Difficult   Difficult `json:"difficult"`
-	Status      Status    `json:"status"`
+	Id          int32       `json:"id"`
+	AuthorId    int32       `json:"author_id"`
+	Name        string      `json:"name"`
+	Description string      `json:"description"`
+	Price       float64     `json:"price"`
+	Difficult   Difficult   `json:"difficult"`
+	Status      Status      `json:"status"`
+	Equipment   []Equipment `gorm:"many2many:tour_equipments;" json:"equipment"`
 }
