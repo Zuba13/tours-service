@@ -11,8 +11,8 @@ type CheckpointService struct {
 	CheckpointRepo *repo.CheckpointRepository
 }
 
-func (service *CheckpointService) Create(checkpoint *model.Checkpoint) error {
-	err := service.CheckpointRepo.CreateCheckpoint(checkpoint)
+func (service *CheckpointService) Create(checkpoint *model.Checkpoint, tourId int32) error {
+	err := service.CheckpointRepo.CreateCheckpoint(checkpoint, tourId)
 	if err != nil {
 		fmt.Println("Error creating checkpoint: ", err)
 		return err

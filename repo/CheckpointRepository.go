@@ -9,7 +9,8 @@ type CheckpointRepository struct {
 	DatabaseConnection *gorm.DB
 }
 
-func (repo *CheckpointRepository) CreateCheckpoint(checkpoint *model.Checkpoint) error {
+func (repo *CheckpointRepository) CreateCheckpoint(checkpoint *model.Checkpoint, tourId int32) error {
+	checkpoint.TourId = tourId
 	dbResult := repo.DatabaseConnection.Create(checkpoint)
 	if dbResult.Error != nil {
 		panic(dbResult.Error)

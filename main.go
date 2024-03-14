@@ -30,11 +30,14 @@ func initDB() *gorm.DB {
 	return db
 }
 
-func startServer(handler *handler.TourHandler) {
+func startServer(tourHandler *handler.TourHandler,
+	checkpointHandler *handler.CheckpointHandler) {
+
 	router := mux.NewRouter().StrictSlash(true)
 
-	router.HandleFunc("/create-tour", handler.Create).Methods("POST")
-	router.HandleFunc("/get-tours/{authorId}", handler.GetAuthorTours).Methods("GET")
+	router.HandleFunc("/create-tour", tourHandler.Create).Methods("POST")
+	router.HandleFunc("/get-tours/{authorId}", tourHandler.GetAuthorTours).Methods("GET")
+	router.HandleFunc("/add-checkpoint/{tourId}", checkpointHandler.CreateCheckpoint).Methods("POST")
 
 	println("Server starting")
 	log.Fatal(http.ListenAndServe(":8080", router))
@@ -46,10 +49,14 @@ func main() {
 		print("FAILED TO CONNECT TO DB")
 		return
 	}
-	repo := &repo.TourRepository{DatabaseConnection: database}
-	service := &service.TourService{TourRepo: repo}
-	handler := &handler.TourHandler{TourService: service}
+	checkpointRepo := &repo.CheckpointRepository{DatabaseConnection: database}
+	checkpointService := &service.CheckpointService{CheckpointRepo: checkpointRepo}
+	checkpointHandler := &handler.CheckpointHandler{CheckpointService: checkpointService}
 
-	startServer(handler)
+	tourRepo := &repo.TourRepository{DatabaseConnection: database}
+	tourService := &service.TourService{TourRepo: tourRepo}
+	tourHandler := &handler.TourHandler{TourService: tourService}
+
+	startServer(tourHandler, checkpointHandler)
 
 }
