@@ -24,13 +24,13 @@ func (repo *TourRepository) GetAuthorTours(authorId int32) []model.Tour {
 	return tours
 }
 
-func (repo *TourRepository) UpdateTour(tour *model.Tour) error {
+func (repo *TourRepository) UpdateTour(tour *model.Tour) (*model.Tour, error) {
 	dbResult := repo.DatabaseConnection.Save(tour)
 	if dbResult.Error != nil {
 		panic(dbResult.Error)
 	}
 	println("Rows affected: ", dbResult.RowsAffected)
-	return nil
+	return tour, nil
 }
 
 func (repo *TourRepository) AddEquipment(tourId int32, newEquipment []model.Equipment) error {
@@ -39,11 +39,19 @@ func (repo *TourRepository) AddEquipment(tourId int32, newEquipment []model.Equi
 	if err := repo.DatabaseConnection.Where("id = ?", tourId).First(&tour).Error; err != nil {
 		return err
 	}
-	tour.Equipment = append(tour.Equipment, newEquipment...)
+	tour.TourEquipment = append(tour.TourEquipment, newEquipment...)
 
 	if err := repo.DatabaseConnection.Save(&tour).Error; err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func (repo *TourRepository) GetTourById(tourId int32) (*model.Tour, error) {
+	var tour model.Tour
+	if err := repo.DatabaseConnection.Where("id = ?", tourId).First(&tour).Error; err != nil {
+		return nil, err
+	}
+	return &tour, nil
 }

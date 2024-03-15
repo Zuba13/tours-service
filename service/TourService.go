@@ -25,13 +25,13 @@ func (service *TourService) GetAuthorTours(authorId int32) []model.Tour {
 	return tours
 }
 
-func (service *TourService) Update(tour *model.Tour) error {
-	err := service.TourRepo.UpdateTour(tour)
+func (service *TourService) Update(tourToUpdate *model.Tour) (*model.Tour, error) {
+	updatedTour, err := service.TourRepo.UpdateTour(tourToUpdate)
 	if err != nil {
 		fmt.Println("Error updating tour: ", err)
-		return err
+		return nil, err
 	}
-	return nil
+	return updatedTour, nil
 }
 
 func (service *TourService) AddEquipment(tourId int32, newEquipment []model.Equipment) error {
@@ -41,4 +41,13 @@ func (service *TourService) AddEquipment(tourId int32, newEquipment []model.Equi
 		return err
 	}
 	return nil
+}
+
+func (service *TourService) GetTourById(tourId int32) (*model.Tour, error) {
+	tour, err := service.TourRepo.GetTourById(tourId)
+	if err != nil {
+		fmt.Println("Error getting tour by id: ", err)
+		return nil, err
+	}
+	return tour, nil
 }

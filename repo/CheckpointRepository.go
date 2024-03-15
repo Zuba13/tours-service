@@ -18,3 +18,9 @@ func (repo *CheckpointRepository) CreateCheckpoint(checkpoint *model.Checkpoint,
 	println("Rows affected: ", dbResult.RowsAffected)
 	return nil
 }
+
+func (repo *CheckpointRepository) GetCheckpoints(tourId int32) []model.Checkpoint {
+	var checkpoints []model.Checkpoint
+	repo.DatabaseConnection.Where("tour_id = ?", tourId).Find(&checkpoints)
+	return checkpoints
+}

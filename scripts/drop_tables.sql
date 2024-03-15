@@ -1,0 +1,4 @@
+DROP TABLE IF EXISTS checkpoints;
+DROP TABLE IF EXISTS tour_equipments;
+DROP TABLE IF EXISTS equipment;
+DROP TABLE IF EXISTS tours CASCADE;

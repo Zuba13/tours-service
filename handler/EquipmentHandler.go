@@ -12,7 +12,7 @@ import (
 )
 
 type EquipmentHandler struct {
-	service *service.EquipmentService
+	EquipmentService *service.EquipmentService
 }
 
 func (handler *EquipmentHandler) SaveTourEquipment(writer http.ResponseWriter, request *http.Request) {
@@ -36,11 +36,17 @@ func (handler *EquipmentHandler) SaveTourEquipment(writer http.ResponseWriter, r
 		equipmentIDs = append(equipmentIDs, equip.Id)
 	}
 
-	if err := handler.service.SaveTourEquipment(equipment, int32(tourID)); err != nil {
+	if err := handler.EquipmentService.SaveTourEquipment(equipment, int32(tourID)); err != nil {
 		fmt.Println("error saving tour equipment:", err)
 		writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	writer.WriteHeader(http.StatusCreated)
+}
+
+func (handler *EquipmentHandler) GetEquipment(writer http.ResponseWriter, request *http.Request) {
+	equipment := handler.EquipmentService.GetEquipment()
+	json.NewEncoder(writer).Encode(equipment)
+	writer.Header().Set("Content-Type", "application/json")
 }

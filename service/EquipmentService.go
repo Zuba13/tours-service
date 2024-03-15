@@ -6,13 +6,18 @@ import (
 )
 
 type EquipmentService struct {
-	repo *repo.TourEquipmentRepository
+	EquipmentRepo *repo.TourEquipmentRepository
 }
 
 func (service *EquipmentService) SaveTourEquipment(newEquipment []model.Equipment, tourId int32) error {
-	err := service.repo.SaveTourEquipment(newEquipment, tourId)
+	err := service.EquipmentRepo.SaveTourEquipment(newEquipment, tourId)
 	if err != nil {
 		return err
 	}
 	return nil
+}
+
+func (service *EquipmentService) GetEquipment() []model.Equipment {
+	equipment := service.EquipmentRepo.GetEquipment()
+	return equipment
 }

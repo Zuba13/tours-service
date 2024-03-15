@@ -33,3 +33,9 @@ func (repo *TourEquipmentRepository) SaveTourEquipment(newEquipment []model.Equi
 
 	return nil
 }
+
+func (repo *TourEquipmentRepository) GetEquipment() []model.Equipment {
+	var equipment []model.Equipment
+	repo.DatabaseConnection.Model(&model.Equipment{}).Find(&equipment)
+	return equipment
+}

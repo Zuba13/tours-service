@@ -33,17 +33,21 @@ func initDB() *gorm.DB {
 }
 
 func startServer(tourHandler *handler.TourHandler,
-	checkpointHandler *handler.CheckpointHandler) {
+	checkpointHandler *handler.CheckpointHandler,
+	equipmentHandler *handler.EquipmentHandler) {
 
 	router := mux.NewRouter().StrictSlash(true)
 
-	router.HandleFunc("/create-tour", tourHandler.Create).Methods("POST")
+	router.HandleFunc("/create-tour", tourHandler.Update).Methods("PUT")
 	router.HandleFunc("/get-tours/{authorId}", tourHandler.GetAuthorTours).Methods("GET")
 	router.HandleFunc("/add-checkpoint/{tourId}", checkpointHandler.CreateCheckpoint).Methods("POST")
 	router.HandleFunc("/add-equipment/{tourId}", tourHandler.AddEquipment).Methods("POST")
+	router.HandleFunc("/get-tour/{tourId}", tourHandler.GetTourById).Methods("GET")
+	router.HandleFunc("/get-checkpoints/{tourId}", checkpointHandler.GetCheckpoints).Methods("GET")
+	router.HandleFunc("/get-equipment", equipmentHandler.GetEquipment).Methods("GET")
 
 	println("Server starting")
-	log.Fatal(http.ListenAndServe(":8080", router))
+	log.Fatal(http.ListenAndServe(":8082", router))
 }
 
 func main() {
@@ -52,6 +56,11 @@ func main() {
 		print("FAILED TO CONNECT TO DB")
 		return
 	}
+
+	equipmentRepo := &repo.TourEquipmentRepository{DatabaseConnection: database}
+	equipmentService := &service.EquipmentService{EquipmentRepo: equipmentRepo}
+	equipmentHandler := &handler.EquipmentHandler{EquipmentService: equipmentService}
+
 	checkpointRepo := &repo.CheckpointRepository{DatabaseConnection: database}
 	checkpointService := &service.CheckpointService{CheckpointRepo: checkpointRepo}
 	checkpointHandler := &handler.CheckpointHandler{CheckpointService: checkpointService}
@@ -60,6 +69,6 @@ func main() {
 	tourService := &service.TourService{TourRepo: tourRepo}
 	tourHandler := &handler.TourHandler{TourService: tourService}
 
-	startServer(tourHandler, checkpointHandler)
+	startServer(tourHandler, checkpointHandler, equipmentHandler)
 
 }

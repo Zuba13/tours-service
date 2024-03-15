@@ -56,19 +56,35 @@ func (handler *TourHandler) GetAuthorTours(writer http.ResponseWriter, request *
 func (handler *TourHandler) Update(writer http.ResponseWriter, request *http.Request) {
 	var tour model.Tour
 	err := json.NewDecoder(request.Body).Decode(&tour)
+	fmt.Println("Equipment: ", tour.TourEquipment)
 	if err != nil {
 		println("error parsing json: ", err)
 		writer.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	err = handler.TourService.Update(&tour)
+
+	updatedTour, err := handler.TourService.Update(&tour)
 	if err != nil {
-		println("Error while updating tour")
+		println("Error while updating the tour")
 		writer.WriteHeader(http.StatusExpectationFailed)
 		return
 	}
-	writer.WriteHeader(http.StatusCreated)
+
+	updatedTourJSON, err := json.Marshal(updatedTour)
+	if err != nil {
+		println("Error encoding updated tour as JSON: ", err)
+		writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	writer.WriteHeader(http.StatusOK)
 	writer.Header().Set("Content-Type", "application/json")
+	_, err = writer.Write(updatedTourJSON)
+	if err != nil {
+		println("Error writing response: ", err)
+		writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }
 
 func (handler *TourHandler) AddEquipment(writer http.ResponseWriter, request *http.Request) {
@@ -95,4 +111,26 @@ func (handler *TourHandler) AddEquipment(writer http.ResponseWriter, request *ht
 	}
 
 	writer.WriteHeader(http.StatusCreated)
+}
+
+func (handler *TourHandler) GetTourById(writer http.ResponseWriter, request *http.Request) {
+	vars := mux.Vars(request)
+	tourIDstr := vars["tourId"]
+	tourID, err := strconv.Atoi(tourIDstr)
+	if err != nil {
+		fmt.Println("error parsing tour ID:", err)
+		writer.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	var tour *model.Tour
+	tour, err = handler.TourService.GetTourById(int32(tourID))
+	if err != nil {
+		fmt.Println("error getting tour by id:", err)
+		writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(writer).Encode(tour)
+	writer.Header().Set("Content-Type", "application/json")
 }

@@ -19,3 +19,8 @@ func (service *CheckpointService) Create(checkpoint *model.Checkpoint, tourId in
 	}
 	return nil
 }
+
+func (service *CheckpointService) GetCheckpoints(tourId int32) []model.Checkpoint {
+	checkpoints := service.CheckpointRepo.GetCheckpoints(tourId)
+	return checkpoints
+}

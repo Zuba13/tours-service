@@ -34,3 +34,16 @@ func (handler *CheckpointHandler) CreateCheckpoint(writer http.ResponseWriter, r
 	writer.WriteHeader(http.StatusCreated)
 	writer.Header().Set("Content-Type", "application/json")
 }
+
+func (handler *CheckpointHandler) GetCheckpoints(writer http.ResponseWriter, request *http.Request) {
+	vars := mux.Vars(request)
+	tourId := vars["tourId"]
+	tourID, err := strconv.Atoi(tourId)
+	if err != nil {
+		writer.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	checkpoints := handler.CheckpointService.GetCheckpoints(int32(tourID))
+	json.NewEncoder(writer).Encode(checkpoints)
+	writer.Header().Set("Content-Type", "application/json")
+}
