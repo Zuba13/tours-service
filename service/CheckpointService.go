@@ -21,6 +21,10 @@ func (service *CheckpointService) Create(checkpoint *model.Checkpoint, tourId in
 }
 
 func (service *CheckpointService) GetCheckpoints(tourId int32) []model.Checkpoint {
-	checkpoints := service.CheckpointRepo.GetCheckpoints(tourId)
+	checkpoints, err := service.CheckpointRepo.GetCheckpoints(tourId)
+	if err != nil {
+		fmt.Println("Error getting checkpoints: ", err)
+		return nil
+	}
 	return checkpoints
 }

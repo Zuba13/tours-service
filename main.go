@@ -27,6 +27,9 @@ func initDB() *gorm.DB {
 	db.AutoMigrate(&model.Tour{})
 	db.AutoMigrate(&model.Checkpoint{})
 	db.AutoMigrate(&model.TourEquipment{})
+	db.AutoMigrate(&model.TourExecution{})
+	db.AutoMigrate(&model.CheckpointStatus{})
+
 	fmt.Println("Successfully connected!")
 
 	return db
@@ -34,7 +37,8 @@ func initDB() *gorm.DB {
 
 func startServer(tourHandler *handler.TourHandler,
 	checkpointHandler *handler.CheckpointHandler,
-	equipmentHandler *handler.EquipmentHandler) {
+	equipmentHandler *handler.EquipmentHandler,
+	tourExecutionHandler *handler.TourExecutionHandler) {
 
 	router := mux.NewRouter().StrictSlash(true)
 
@@ -45,6 +49,7 @@ func startServer(tourHandler *handler.TourHandler,
 	router.HandleFunc("/get-tour/{tourId}", tourHandler.GetTourById).Methods("GET")
 	router.HandleFunc("/get-checkpoints/{tourId}", checkpointHandler.GetCheckpoints).Methods("GET")
 	router.HandleFunc("/get-equipment", equipmentHandler.GetEquipment).Methods("GET")
+	router.HandleFunc("/tourist/execute-tour/{tourId}/{touristId}", tourExecutionHandler.ExecuteTour).Methods("POST")
 
 	println("Server starting")
 	log.Fatal(http.ListenAndServe(":8082", router))
@@ -69,6 +74,10 @@ func main() {
 	tourService := &service.TourService{TourRepo: tourRepo}
 	tourHandler := &handler.TourHandler{TourService: tourService}
 
-	startServer(tourHandler, checkpointHandler, equipmentHandler)
+	tourExecutionRepo := &repo.TourExecutionRepository{DatabaseConnection: database, CheckpointRepo: checkpointRepo}
+	tourExecutionService := &service.TourExecutionService{TourExecutionRepo: tourExecutionRepo}
+	tourExecutionHandler := &handler.TourExecutionHandler{TourExecutionService: tourExecutionService}
+
+	startServer(tourHandler, checkpointHandler, equipmentHandler, tourExecutionHandler)
 
 }
