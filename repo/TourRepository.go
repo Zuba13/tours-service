@@ -20,16 +20,54 @@ func (repo *TourRepository) CreateTour(tour *model.Tour) error {
 
 func (repo *TourRepository) GetAuthorTours(authorId int32) []model.Tour {
 	var tours []model.Tour
-	repo.DatabaseConnection.Where("author_id = ?", authorId).Find(&tours)
+	repo.DatabaseConnection.Preload("TourEquipment").Where("author_id = ?", authorId).Find(&tours)
 	return tours
 }
 
 func (repo *TourRepository) UpdateTour(tour *model.Tour) (*model.Tour, error) {
-	dbResult := repo.DatabaseConnection.Save(tour)
-	if dbResult.Error != nil {
-		panic(dbResult.Error)
+	tx := repo.DatabaseConnection.Begin()
+
+	if err := tx.Save(tour).Error; err != nil {
+		tx.Rollback()
+		return nil, err
 	}
-	println("Rows affected: ", dbResult.RowsAffected)
+
+	var foundTour model.Tour
+	if err := tx.Preload("TourEquipment").Find(&foundTour).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	var existingEquipmentIds []int32
+	for _, equipment := range foundTour.TourEquipment {
+		existingEquipmentIds = append(existingEquipmentIds, equipment.Id)
+	}
+
+	var newEquipmentIds []int32
+	for _, equipment := range tour.TourEquipment {
+		newEquipmentIds = append(newEquipmentIds, equipment.Id)
+	}
+
+	var removedEquipmentIds []int32
+	for _, existingEquipmentId := range existingEquipmentIds {
+		found := false
+		for _, newEquipmentId := range newEquipmentIds {
+			if existingEquipmentId == newEquipmentId {
+				found = true
+				break
+			}
+		}
+		if !found {
+			removedEquipmentIds = append(removedEquipmentIds, existingEquipmentId)
+		}
+	}
+
+	if len(removedEquipmentIds) > 0 {
+		tx.Where("tour_id = ? AND equipment_id IN (?)", tour.Id, removedEquipmentIds).Delete(&model.TourEquipment{})
+	}
+
+	tx.Commit()
+
 	return tour, nil
 }
 

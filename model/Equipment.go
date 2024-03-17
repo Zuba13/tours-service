@@ -1,12 +1,12 @@
 package model
 
 type Equipment struct {
-	Id          int32  `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
+	Id          int32  `json:"Id"`
+	Name        string `json:"Name"`
+	Description string `json:"Description"`
 }
 
 type TourEquipment struct {
-	TourId      int32 `json:"tour_id"`
-	EquipmentId int32 `json:"equipment_id"`
+	TourId      int32 `json:"TourId"`
+	EquipmentId int32 `json:"EquipmentId"`
 }
