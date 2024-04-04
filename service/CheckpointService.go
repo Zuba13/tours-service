@@ -20,6 +20,15 @@ func (service *CheckpointService) Create(checkpoint *model.Checkpoint, tourId in
 	return nil
 }
 
+func (service *CheckpointService) Update(checkpoint *model.Checkpoint, checkpointId int32) error {
+	err := service.CheckpointRepo.UpdateCheckpoint(checkpoint, checkpointId)
+	if err != nil {
+		fmt.Println("Error updating checkpoint: ", err)
+		return err
+	}
+	return nil
+}
+
 func (service *CheckpointService) GetCheckpoints(tourId int32) []model.Checkpoint {
 	checkpoints, err := service.CheckpointRepo.GetCheckpoints(tourId)
 	if err != nil {

@@ -50,6 +50,8 @@ func startServer(tourHandler *handler.TourHandler,
 	router.HandleFunc("/get-checkpoints/{tourId}", checkpointHandler.GetCheckpoints).Methods("GET")
 	router.HandleFunc("/get-equipment", equipmentHandler.GetEquipment).Methods("GET")
 	router.HandleFunc("/tourist/execute-tour/{tourId}/{touristId}", tourExecutionHandler.ExecuteTour).Methods("POST")
+	router.HandleFunc("/get-suggested-tours/{touristId}", tourHandler.GetSuggestedTours).Methods("GET")
+	router.HandleFunc("/update-checkpoint/{checkpointId}", checkpointHandler.UpdateCheckpoint).Methods("PUT")
 
 	println("Server starting")
 	log.Fatal(http.ListenAndServe(":8082", router))

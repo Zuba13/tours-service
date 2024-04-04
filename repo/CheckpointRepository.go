@@ -19,6 +19,18 @@ func (repo *CheckpointRepository) CreateCheckpoint(checkpoint *model.Checkpoint,
 	return nil
 }
 
+func (repo *CheckpointRepository) UpdateCheckpoint(checkpoint *model.Checkpoint, checkpointId int32) error {
+	checkpoint.Id = checkpointId
+
+	dbResult := repo.DatabaseConnection.Save(checkpoint)
+	if dbResult.Error != nil {
+		panic(dbResult.Error)
+	}
+	println("Rows affected: ", dbResult.RowsAffected)
+
+	return nil
+}
+
 func (repo *CheckpointRepository) GetCheckpoints(tourId int32) ([]model.Checkpoint, error) {
 	var checkpoints []model.Checkpoint
 	if err := repo.DatabaseConnection.Where("tour_id = ?", tourId).Find(&checkpoints).Error; err != nil {

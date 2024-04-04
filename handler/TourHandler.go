@@ -53,6 +53,24 @@ func (handler *TourHandler) GetAuthorTours(writer http.ResponseWriter, request *
 	writer.Header().Set("Content-Type", "application/json")
 }
 
+func (handler *TourHandler) GetSuggestedTours(writer http.ResponseWriter, request *http.Request) {
+	vars := mux.Vars(request)
+	touristId := vars["touristId"]
+	fmt.Println("Usao sam u metodu; touristId: ", touristId)
+	if touristId == "" {
+		writer.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	touristID, err := strconv.Atoi(touristId)
+	if err != nil {
+		writer.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	tours := handler.TourService.GetSuggestedTours(int32(touristID))
+	json.NewEncoder(writer).Encode(tours)
+	writer.Header().Set("Content-Type", "application/json")
+}
+
 func (handler *TourHandler) Update(writer http.ResponseWriter, request *http.Request) {
 	var tour model.Tour
 	err := json.NewDecoder(request.Body).Decode(&tour)

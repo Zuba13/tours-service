@@ -25,6 +25,11 @@ func (service *TourService) GetAuthorTours(authorId int32) []model.Tour {
 	return tours
 }
 
+func (service *TourService) GetSuggestedTours(authorId int32) []model.Tour {
+	tours := service.TourRepo.GetAuthorTours(authorId)
+	return tours
+}
+
 func (service *TourService) Update(tourToUpdate *model.Tour) (*model.Tour, error) {
 	updatedTour, err := service.TourRepo.UpdateTour(tourToUpdate)
 	if err != nil {

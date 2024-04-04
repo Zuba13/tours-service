@@ -24,6 +24,42 @@ func (repo *TourRepository) GetAuthorTours(authorId int32) []model.Tour {
 	return tours
 }
 
+func (tourRepo *TourRepository) GetSuggestions(page int, pageSize int, checkpoints []int64) ([]model.Tour, error) {
+	var resultTours []model.Tour
+
+	var tours []model.Tour
+	if err := tourRepo.DatabaseConnection.Where("status = ?", model.PUBLISHED).Preload("Checkpoints").Find(&tours).Error; err != nil {
+		return nil, err
+	}
+
+	for _, tour := range tours {
+		var tourCheckpointIDs []int64
+		for _, checkpoint := range tour.Checkpoints {
+			tourCheckpointIDs = append(tourCheckpointIDs, int64(checkpoint.Id))
+		}
+
+		allPresent := true
+		for _, checkpointID := range checkpoints {
+			found := false
+			for _, tourCheckpointID := range tourCheckpointIDs {
+				if checkpointID == tourCheckpointID {
+					found = true
+					break
+				}
+			}
+			if !found {
+				allPresent = false
+				break
+			}
+		}
+
+		if allPresent {
+			resultTours = append(resultTours, tour)
+		}
+	}
+	return resultTours, nil
+}
+
 func (repo *TourRepository) UpdateTour(tour *model.Tour) (*model.Tour, error) {
 	tx := repo.DatabaseConnection.Begin()
 
